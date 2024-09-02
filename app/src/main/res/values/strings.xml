@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Tasks Room</string>
+    <string name="delete_description">Delete</string>
 </resources>

@@ -1,6 +1,6 @@
 package br.edu.ifsp.dmo.tasksroom.ui.listeners
 
-interface TaskItemClickListener {
+interface RegistroItemClickListener {
     fun clickDone(position: Int)
     fun clickOpen(position: Int)
 }

@@ -1,5 +1,5 @@
 package br.edu.ifsp.dmo.tasksroom.util
 
 object Constant {
-    const val TASK_ID = "task_id"
+    const val REGISTRO_ID = "registro_id"
 }

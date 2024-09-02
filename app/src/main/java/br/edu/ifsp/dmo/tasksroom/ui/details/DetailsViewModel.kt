@@ -4,49 +4,49 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.edu.ifsp.dmo.tasksroom.data.model.Task
-import br.edu.ifsp.dmo.tasksroom.data.repository.TaskRepository
+import br.edu.ifsp.dmo.tasksroom.data.model.Registro
+import br.edu.ifsp.dmo.tasksroom.data.repository.RegistroRepository
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-class DetailsViewModel(private val repository: TaskRepository): ViewModel() {
-    private var taskId: Long = -1
+
+class DetailsViewModel(private val repository: RegistroRepository) : ViewModel() {
+
     private val _saved = MutableLiveData<Boolean>()
-    val saved: LiveData<Boolean> = _saved
+    val saved: LiveData<Boolean> get() = _saved
+
     private val _isUpdate = MutableLiveData<Boolean>()
-    val isUpdate: LiveData<Boolean> = _isUpdate
+    val isUpdate: LiveData<Boolean> get() = _isUpdate
+
     private val _title = MutableLiveData<String>()
-    val title: LiveData<String> = _title
+    val title: LiveData<String> get() = _title
+
     private val _description = MutableLiveData<String>()
-    val description: LiveData<String> = _description
-    private val _deadlineString = MutableLiveData<String>()
-    val deadlineString: LiveData<String> = _deadlineString
-    init {
-        _isUpdate.value = false
-    }
-    fun saveTask(title: String, description: String, deadline: LocalDate){
-        val task = Task(title = title, description = description, deadLineDate = deadline)
-        if (_isUpdate.value == false) {
-            viewModelScope.launch {
-                _saved.value = repository.insert(task)
+    val description: LiveData<String> get() = _description
+
+    private val _dateTime = MutableLiveData<String>()
+    val dateTime: LiveData<String> get() = _dateTime
+
+    fun showRecord(id: Long) {
+        viewModelScope.launch {
+            val record = repository.findById(id)
+            if (record == null) {
+                _saved.value = false
+                return@launch
             }
-        } else {
-            task.id = taskId
-            viewModelScope.launch {
-                _saved.value = repository.update(task)
-                taskId = -1
-            }
+            _title.value = record.title
+            _description.value = record.description
+            _dateTime.value = record.dateTime
+            _isUpdate.value = true
         }
     }
-    fun showEvent(id: Long) {
+
+    fun saveRecord(title: String, description: String, dateTime: String) {
         viewModelScope.launch {
-            val task = repository.findById(id)
-            if (task != null){
-                taskId = task.id
-                _isUpdate.value = true
-                _description.value = task.description
-                _title.value = task.title
-                _deadlineString.value = task.deadline
+            val success = if (_isUpdate.value == true) {
+                repository.update(Registro(id = _dateTime.value?.toLong() ?: 0, title = title, description = description, dateTime = dateTime))
+            } else {
+                repository.insert(Registro(title = title, description = description, dateTime = dateTime))
             }
+            _saved.value = success
         }
     }
 }

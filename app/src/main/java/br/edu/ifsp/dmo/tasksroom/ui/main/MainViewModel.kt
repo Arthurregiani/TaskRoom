@@ -4,32 +4,30 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import br.edu.ifsp.dmo.tasksroom.data.model.Task
-import br.edu.ifsp.dmo.tasksroom.data.repository.TaskRepository
+import br.edu.ifsp.dmo.tasksroom.data.model.Registro
+import br.edu.ifsp.dmo.tasksroom.data.repository.RegistroRepository
 import kotlinx.coroutines.launch
 
-class MainViewModel(private val repository: TaskRepository) : ViewModel() {
-    private val _tasks = MutableLiveData<List<Task>>()
-    val tasks: LiveData<List<Task>> = _tasks
+class MainViewModel(private val repository: RegistroRepository) : ViewModel() {
+    private val _records = MutableLiveData<List<Registro>>()
+    val records: LiveData<List<Registro>> = _records
 
     init {
-        checkDatabase()
+        loadRecords()
     }
 
-    fun checkDatabase() {
+    private fun loadRecords() {
         viewModelScope.launch {
-            val list = repository.findAll()
-            _tasks.postValue(list)
+            repository.findAll().observeForever { registros ->
+                _records.value = registros
+            }
         }
     }
 
-    fun makeTaskDone(id: Long) {
+    fun deleteRecord(id: Long) {
         viewModelScope.launch {
-            val task = repository.findById(id)
-            if (task != null) {
-                repository.remove(task)
-                checkDatabase()
-            }
+            repository.deleteById(id)
+            loadRecords()
         }
     }
 }
